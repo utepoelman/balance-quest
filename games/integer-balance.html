@@ -1,0 +1,1309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Integer Balance Quest</title>
+    <style>
+        /* ALL the original Balance Quest CSS for integers */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Comic Sans MS', 'Chalkboard SE', 'Segoe UI', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            min-height: 100vh;
+            padding: 0;
+            color: #5d4037;
+        }
+        
+        .game-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: #fff9f4;
+            border-radius: 25px;
+            box-shadow: 0 15px 35px rgba(141, 110, 99, 0.2);
+            padding: 25px;
+            position: relative;
+            overflow: hidden;
+            border: 8px solid #8d6e63;
+        }
+        
+        .game-container::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                radial-gradient(circle at 20% 80%, #ffe0b2 0%, transparent 15%),
+                radial-gradient(circle at 80% 20%, #ffccbc 0%, transparent 15%),
+                radial-gradient(circle at 40% 40%, #fff3e0 0%, transparent 20%);
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        .game-title {
+            text-align: center;
+            margin-bottom: 25px;
+            color: #5d4037;
+            font-size: 3rem;
+            position: relative;
+            font-weight: 900;
+            text-shadow: 3px 3px 0 #ffcc80;
+            z-index: 1;
+        }
+        
+        .game-title::before {
+            content: "🐹";
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            top: -40px;
+            font-size: 4rem;
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2));
+        }
+        
+        .game-goal-display {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            background: linear-gradient(to right, #4caf50, #66bb6a);
+            color: white;
+            padding: 12px 25px;
+            border-radius: 20px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border: 3px solid #388e3c;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            display: none;
+            z-index: 1;
+            max-width: 250px;
+            text-align: center;
+        }
+        
+        .win-condition-selection {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            max-width: 500px;
+            margin: 0 auto 25px;
+        }
+        
+        .win-condition-option {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            background: white;
+            border-radius: 12px;
+            border: 3px solid #ffcc80;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .win-condition-option:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            background: #fff8e1;
+        }
+        
+        .win-condition-option.selected {
+            background: #ffecb3;
+            border-color: #ff9800;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(255, 152, 0, 0.2);
+        }
+        
+        .win-condition-radio {
+            display: none;
+        }
+        
+        .win-condition-label {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #5d4037;
+            cursor: pointer;
+            flex-grow: 1;
+        }
+        
+        .win-condition-icon {
+            font-size: 1.5rem;
+            width: 30px;
+            text-align: center;
+        }
+        
+        .win-condition-description {
+            font-size: 0.9rem;
+            color: #8d6e63;
+            margin-top: 5px;
+            font-style: italic;
+        }
+        
+        .setup-screen {
+            background-color: #fff3e0;
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 25px;
+            text-align: center;
+            border: 4px solid #ffb74d;
+            position: relative;
+            z-index: 1;
+            box-shadow: inset 0 0 20px rgba(255, 183, 77, 0.2);
+        }
+        
+        .game-type-selection {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .game-type-btn {
+            padding: 20px 30px;
+            font-size: 1.3rem;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            background: linear-gradient(to bottom, #fff, #f5f5f5);
+            color: #5d4037;
+            border: 4px solid #ffcc80;
+            position: relative;
+            overflow: hidden;
+            min-width: 250px;
+            min-height: 150px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+        
+        .game-type-btn:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+            background: linear-gradient(to bottom, #fff, #ffe0b2);
+        }
+        
+        .game-type-btn.active {
+            background: linear-gradient(to bottom, #ffcc80, #ffb74d);
+            color: #5d4037;
+            transform: translateY(-8px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+            border-color: #ff9800;
+        }
+        
+        .game-type-btn.active::before {
+            content: "🐹";
+            position: absolute;
+            right: 15px;
+            top: 15px;
+            font-size: 2rem;
+        }
+        
+        .game-type-icon {
+            font-size: 3.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .game-type-description {
+            font-size: 0.9rem;
+            color: #8d6e63;
+            text-align: center;
+            max-width: 200px;
+            line-height: 1.4;
+        }
+        
+        .setup-title {
+            font-size: 2.2rem;
+            margin-bottom: 20px;
+            color: #ff9800;
+            font-weight: bold;
+            text-shadow: 2px 2px 0 #ffcc80;
+        }
+        
+        .mode-selection {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .mode-btn {
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+            background: linear-gradient(to bottom, #fff, #f5f5f5);
+            color: #5d4037;
+            border: 3px solid #ffcc80;
+            position: relative;
+            overflow: hidden;
+            min-width: 180px;
+        }
+        
+        .mode-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+            background: linear-gradient(to bottom, #fff, #ffe0b2);
+        }
+        
+        .mode-btn.active {
+            background: linear-gradient(to bottom, #ffcc80, #ffb74d);
+            color: #5d4037;
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            border-color: #ff9800;
+        }
+        
+        .mode-btn.active::before {
+            content: "🐹";
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.5rem;
+        }
+        
+        .player-names {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            max-width: 400px;
+            margin: 0 auto 20px;
+        }
+        
+        .name-input {
+            padding: 12px 15px;
+            font-size: 1.1rem;
+            border: 3px solid #ffcc80;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            background: white;
+            font-weight: bold;
+            color: #5d4037;
+            text-align: center;
+        }
+        
+        .name-input:focus {
+            outline: none;
+            border-color: #ff9800;
+            box-shadow: 0 0 0 4px rgba(255, 152, 0, 0.1);
+        }
+        
+        .start-btn {
+            padding: 15px 40px;
+            font-size: 1.4rem;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+            background: linear-gradient(to right, #ff9800, #ffb74d);
+            color: white;
+            margin-top: 10px;
+            border: 3px solid #ffcc80;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+        }
+        
+        .start-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.2);
+            background: linear-gradient(to right, #ffb74d, #ff9800);
+        }
+        
+        .game-area {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            margin-bottom: 25px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .player-area, .opponent-area {
+            flex: 1;
+            min-width: 300px;
+            background-color: #fff8e1;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.05);
+            position: relative;
+            border: 4px solid #ffb74d;
+        }
+        
+        .deck-area {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 50px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+            order: 1;
+            width: 100%;
+        }
+        
+        .player-header, .opponent-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px dashed #ffcc80;
+            position: relative;
+        }
+        
+        .player-name {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #ff9800;
+            text-shadow: 1px 1px 0 #ffe0b2;
+        }
+        
+        .score {
+            font-size: 1.5rem;
+            background: linear-gradient(to right, #ffcc80, #ffb74d);
+            color: #5d4037;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: bold;
+            border: 2px solid #ff9800;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .current-turn {
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(to right, #4caf50, #66bb6a);
+            color: white;
+            padding: 8px 25px;
+            border-radius: 20px;
+            font-size: 1rem;
+            font-weight: bold;
+            z-index: 10;
+            border: 2px solid #388e3c;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .number-line-container {
+            background: #f5f5f5;
+            border-radius: 10px;
+            padding: 15px 15px 60px;
+            margin: 20px 0;
+            position: relative;
+            border: 3px solid #8d6e63;
+            overflow: hidden;
+            height: 160px;
+        }
+        
+        .number-line-wrapper {
+            position: absolute;
+            left: 2.5%;
+            right: 2.5%;
+            bottom: 75px;
+            height: 6px;
+            transform-origin: center center;
+            transition: transform 0.5s ease;
+            z-index: 2;
+        }
+        
+        .number-line {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to right, #5d4037, #8d6e63);
+            border-radius: 3px;
+        }
+        
+        .pivot-triangle {
+            position: absolute;
+            left: 50%;
+            bottom: -20px;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-bottom: 25px solid #ff9800;
+            border-top: none;
+            z-index: 1;
+        }
+        
+        .end-label {
+            position: absolute;
+            bottom: -25px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #5d4037;
+        }
+        
+        .end-label.left {
+            left: 0;
+        }
+        
+        .end-label.right {
+            right: 0;
+        }
+        
+        .number-ticks {
+            position: absolute;
+            bottom: 0;
+            left: 2.5%;
+            width: 95%;
+            height: 60px;
+            pointer-events: none;
+            overflow: visible;
+        }
+        
+        .tick {
+            position: absolute;
+            width: 2px;
+            height: 12px;
+            background: #5d4037;
+            left: var(--pos);
+            top: 100%;
+            transform: translate(-50%, -100%);
+            z-index: 1;
+        }
+        
+        .tick.major {
+            width: 3px;
+            height: 18px;
+        }
+        
+        .treat-stack {
+            position: absolute;
+            bottom: 75px;
+            transform: translateX(-50%);
+            z-index: 5;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .treat-in-stack {
+            position: absolute;
+            font-size: 1.6rem;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+            left: 50%;
+            bottom: 0;
+            transform: translateX(-50%);
+            line-height: 1;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .hand-container {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            min-height: 160px;
+            margin-top: 20px;
+            padding: 20px;
+            background: rgba(255, 204, 128, 0.1);
+            border-radius: 15px;
+            border: 2px dashed #ffcc80;
+            position: relative;
+        }
+        
+        .hand-row {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+        
+        .hand-row.main-hand {
+            margin-bottom: 25px;
+        }
+        
+        .new-card-container {
+            position: relative;
+            margin-top: 10px;
+        }
+        
+        .new-card-indicator {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #4caf50;
+            color: white;
+            padding: 3px 10px;
+            border-radius: 10px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            z-index: 10;
+            white-space: nowrap;
+        }
+        
+        .card {
+            width: 70px;
+            height: 100px;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            font-weight: bold;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+            transition: all 0.3s ease;
+            position: relative;
+            cursor: pointer;
+            user-select: none;
+            border: 3px solid #a1887f;
+            overflow: hidden;
+        }
+        
+        .card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 8px;
+            background: linear-gradient(to right, #ffcc80, #ffb74d);
+        }
+        
+        .player-card {
+            background: linear-gradient(135deg, #fff, #ffe0b2);
+        }
+        
+        .player-card.selected {
+            transform: translateY(-10px) rotate(5deg);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.25);
+            border-color: #ff9800;
+            background: linear-gradient(135deg, #fff, #ffcc80);
+            z-index: 100;
+        }
+        
+        .player-card.highlighted {
+            animation: pulse 1s infinite;
+        }
+        
+        .opponent-card {
+            background: linear-gradient(135deg, #fff, #f5f5f5);
+        }
+        
+        .opponent-card.selected {
+            transform: translateY(-10px) rotate(-5deg);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.25);
+            border-color: #5d4037;
+            background: linear-gradient(135deg, #fff, #e0e0e0);
+            z-index: 100;
+        }
+        
+        .opponent-card.highlighted {
+            animation: pulse 1s infinite;
+        }
+        
+        .new-card {
+            background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+            border-color: #4caf50;
+            transform: translateY(0);
+            margin-top: 5px;
+        }
+        
+        .card-treat {
+            font-size: 1.5rem;
+            margin-top: 5px;
+        }
+        
+        .card.positive {
+            color: #388e3c;
+        }
+        
+        .card.negative {
+            color: #d32f2f;
+        }
+        
+        .card.zero {
+            color: #ff9800;
+            font-weight: 900;
+        }
+        
+        .deck-container, .discard-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .deck-label, .discard-label {
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: #ff9800;
+            font-size: 1.3rem;
+            text-shadow: 1px 1px 0 #ffe0b2;
+        }
+        
+        .deck {
+            width: 100px;
+            height: 140px;
+            background: linear-gradient(135deg, #ffcc80, #ffb74d);
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #5d4037;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            border: 4px solid #ff9800;
+            font-weight: bold;
+        }
+        
+        .deck:hover:not(:disabled) {
+            transform: translateY(-8px) scale(1.05);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .deck::before {
+            content: "🎒";
+            position: absolute;
+            font-size: 2.5rem;
+            opacity: 0.8;
+        }
+        
+        .discard-pile {
+            width: 100px;
+            height: 140px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            border: 4px solid #8d6e63;
+            background: linear-gradient(135deg, #fff, #f5f5f5);
+            position: relative;
+        }
+        
+        .discard-pile:hover:not(:disabled) {
+            transform: translateY(-8px) scale(1.05);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .game-status {
+            background: linear-gradient(to right, #fff3e0, #ffecb3);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 25px;
+            text-align: center;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            border: 4px solid #ffcc80;
+            color: #5d4037;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .status-text {
+            font-size: 1.6rem;
+            font-weight: bold;
+            color: #ff9800;
+            margin-bottom: 10px;
+            min-height: 40px;
+            text-shadow: 1px 1px 0 #ffe0b2;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .control-btn {
+            padding: 12px 25px;
+            font-size: 1.1rem;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+            border: 3px solid;
+            color: #5d4037;
+        }
+        
+        .new-game-btn {
+            background: linear-gradient(to right, #ff9800, #ffb74d);
+            border-color: #ff9800;
+        }
+        
+        .toggle-balance-btn {
+            background: linear-gradient(to right, #4caf50, #66bb6a);
+            border-color: #388e3c;
+            color: white;
+        }
+        
+        .swap-sides-btn {
+            background: linear-gradient(to right, #ffcc80, #ffe0b2);
+            border-color: #ffb74d;
+        }
+        
+        .control-btn:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        .control-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+        
+        .score-area {
+            background: linear-gradient(to right, #fff3e0, #ffecb3);
+            border-radius: 20px;
+            padding: 25px;
+            margin-top: 20px;
+            border: 4px solid #ffcc80;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            position: relative;
+            z-index: 1;
+        }
+        
+        .score-title {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            text-align: center;
+            color: #ff9800;
+            font-weight: bold;
+            text-shadow: 2px 2px 0 #ffe0b2;
+            border-bottom: 3px dashed #ffb74d;
+            padding-bottom: 10px;
+        }
+        
+        .score-details {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        .score-item {
+            text-align: center;
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+            flex: 1;
+            min-width: 180px;
+            border: 3px solid #ffcc80;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .score-item::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 8px;
+            background: linear-gradient(to right, #ffcc80, #ffb74d);
+        }
+        
+        .score-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-top: 10px;
+            text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.1);
+        }
+        
+        .player1-score {
+            color: #ff9800;
+        }
+        
+        .player2-score {
+            color: #8d6e63;
+        }
+        
+        .round-score {
+            color: #4caf50;
+        }
+        
+        .net-balance {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 152, 0, 0.9);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 15px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+            z-index: 3;
+            display: none;
+        }
+        
+        .instructions {
+            margin-top: 30px;
+            background: linear-gradient(to right, #fff3e0, #ffe0b2);
+            border-radius: 20px;
+            padding: 25px;
+            border-left: 8px solid #ff9800;
+            border-right: 8px solid #ffb74d;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .instructions::before {
+            content: "🐹";
+            position: absolute;
+            font-size: 2.5rem;
+            right: 20px;
+            top: 20px;
+            opacity: 0.3;
+        }
+        
+        .instructions h3 {
+            color: #ff9800;
+            margin-bottom: 15px;
+            font-size: 1.8rem;
+            text-shadow: 1px 1px 0 #ffcc80;
+            border-bottom: 3px solid #ffb74d;
+            padding-bottom: 10px;
+        }
+        
+        .instructions p {
+            margin-bottom: 12px;
+            line-height: 1.6;
+            font-size: 1.1rem;
+        }
+        
+        .instructions ul {
+            margin-left: 25px;
+            margin-bottom: 15px;
+        }
+        
+        .instructions li {
+            margin-bottom: 8px;
+            line-height: 1.5;
+        }
+        
+        .instructions strong {
+            color: #ff9800;
+        }
+        
+        @media (max-width: 768px) {
+            .game-area {
+                flex-direction: column;
+            }
+            
+            .player-area, .opponent-area {
+                min-width: 100%;
+            }
+            
+            .player-area {
+                order: 1;
+            }
+            
+            .deck-area {
+                order: 2;
+                margin: 10px 0;
+                gap: 30px;
+            }
+            
+            .opponent-area {
+                order: 3;
+            }
+            
+            .card {
+                width: 60px;
+                height: 85px;
+                font-size: 1.5rem;
+            }
+            
+            .deck, .discard-pile {
+                width: 80px;
+                height: 110px;
+            }
+            
+            .game-title {
+                font-size: 2.2rem;
+            }
+            
+            .game-type-selection, .mode-selection {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .game-type-btn, .mode-btn {
+                width: 100%;
+                max-width: 300px;
+            }
+            
+            .game-goal-display {
+                position: relative;
+                top: 0;
+                right: 0;
+                margin: 0 auto 20px;
+                max-width: 100%;
+            }
+            
+            .number-line-container {
+                height: 160px;
+                padding: 15px 10px 55px;
+            }
+        }
+        
+        @media (min-width: 769px) {
+            .game-area {
+                display: flex;
+                flex-wrap: nowrap;
+            }
+            
+            .player-area {
+                order: 1;
+                flex: 1;
+            }
+            
+            .deck-area {
+                order: 2;
+                flex: 0 0 auto;
+                flex-direction: column;
+                justify-content: center;
+                gap: 30px;
+                width: auto;
+                margin: 0 20px;
+            }
+            
+            .opponent-area {
+                order: 3;
+                flex: 1;
+            }
+            
+            .deck-container, .discard-container {
+                margin: 0;
+            }
+        }
+        
+        .win-message {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.85);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            flex-direction: column;
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .win-content {
+            background: linear-gradient(135deg, #ffcc80 0%, #ff9800 100%);
+            padding: 40px;
+            border-radius: 25px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+            border: 8px solid #ffb74d;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .win-content::before {
+            content: "⚖️";
+            position: absolute;
+            font-size: 5rem;
+            opacity: 0.2;
+            top: 20px;
+            right: 20px;
+        }
+        
+        .win-title {
+            font-size: 3.5rem;
+            margin-bottom: 20px;
+            color: #5d4037;
+            text-shadow: 3px 3px 0 #ffcc80;
+            font-weight: 900;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .win-details {
+            font-size: 1.8rem;
+            margin-bottom: 30px;
+            color: #5d4037;
+            text-shadow: 1px 1px 0 #ffcc80;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .click-hint {
+            font-size: 0.9rem;
+            color: #8d6e63;
+            margin-top: 5px;
+            font-style: italic;
+            font-weight: bold;
+        }
+        
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+            }
+            50% {
+                box-shadow: 0 8px 16px rgba(255, 152, 0, 0.5);
+            }
+            100% {
+                box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+            }
+        }
+        
+        .balance-tilt {
+            transform: rotate(calc(var(--tilt-angle, 0) * 1deg));
+        }
+        
+        @keyframes flashBalance {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.7;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1 class="game-title">Nugget's Integer Balance Quest</h1>
+        
+        <div class="game-goal-display" id="game-goal-display">
+            Goal: First to <span id="win-target">20</span> nuts
+        </div>
+        
+        <!-- Setup Screen -->
+        <div class="setup-screen" id="setup-screen">
+            <h2 class="setup-title">Welcome to Integer Balance Quest!</h2>
+            
+            <div class="game-type-selection">
+                <button class="game-type-btn active" id="integers-btn">
+                    <div class="game-type-icon">🔢</div>
+                    <div>Whole Numbers</div>
+                    <div class="game-type-description">Simple balancing with integers from -10 to +10</div>
+                </button>
+            </div>
+            
+            <div class="mode-selection">
+                <button class="mode-btn active" id="single-player-btn">Solo Challenge vs AI</button>
+                <button class="mode-btn" id="two-player-btn">Two Player Duel</button>
+            </div>
+            
+            <div class="player-names" id="player-names">
+                <input type="text" class="name-input" id="player1-name" placeholder="Player 1 Name" value="Player 1">
+                <input type="text" class="name-input" id="player2-name" placeholder="AI Helper" value="AI" disabled>
+            </div>
+            
+            <div class="win-condition-selection" id="win-condition-selection">
+                <h3 style="color: #ff9800; text-align: center; margin-bottom: 15px;">Choose Winning Goal:</h3>
+                
+                <div class="win-condition-option" data-value="20">
+                    <div class="win-condition-icon">🏆</div>
+                    <div>
+                        <div class="win-condition-label">First to 20 Nuts</div>
+                        <div class="win-condition-description">Quick game, each round matters!</div>
+                    </div>
+                    <input type="radio" name="winCondition" class="win-condition-radio" value="20" checked>
+                </div>
+                
+                <div class="win-condition-option" data-value="50">
+                    <div class="win-condition-icon">🥇</div>
+                    <div>
+                        <div class="win-condition-label">First to 50 Nuts</div>
+                        <div class="win-condition-description">Standard challenge, strategic play</div>
+                    </div>
+                    <input type="radio" name="winCondition" class="win-condition-radio" value="50">
+                </div>
+                
+                <div class="win-condition-option" data-value="100">
+                    <div class="win-condition-icon">👑</div>
+                    <div>
+                        <div class="win-condition-label">First to 100 Nuts</div>
+                        <div class="win-condition-description">Epic battle, long-term strategy</div>
+                    </div>
+                    <input type="radio" name="winCondition" class="win-condition-radio" value="100">
+                </div>
+                
+                <div class="win-condition-option" data-value="0">
+                    <div class="win-condition-icon">∞</div>
+                    <div>
+                        <div class="win-condition-label">Endless Mode</div>
+                        <div class="win-condition-description">Play forever, no overall winner</div>
+                    </div>
+                    <input type="radio" name="winCondition" class="win-condition-radio" value="0">
+                </div>
+            </div>
+            
+            <button class="start-btn" id="start-btn">Begin Quest!</button>
+        </div>
+        
+        <!-- Game Area -->
+        <div class="game-area hidden" id="game-area">
+            <div class="player-area" id="left-player-area">
+                <div class="player-header">
+                    <div class="player-name" id="left-player-display-name">Player 1</div>
+                    <div class="score">Nuts: <span id="left-player-score">0</span></div>
+                </div>
+                <div class="current-turn hidden" id="left-player-turn">Your Turn!</div>
+                
+                <div class="number-line-container">
+                    <div class="number-line-wrapper" id="left-player-number-line-wrapper">
+                        <div class="number-line"></div>
+                        <div class="pivot-triangle"></div>
+                        <div class="end-label left" id="left-end-label-left">-10</div>
+                        <div class="end-label right" id="left-end-label-right">+10</div>
+                    </div>
+                    <div class="net-balance" id="left-player-net-balance">Net: 0</div>
+                </div>
+                
+                <div class="hand-container" id="left-player-hand"></div>
+                <div class="click-hint">Click to select, double-click to discard a nut</div>
+            </div>
+            
+            <div class="deck-area hidden" id="deck-area">
+                <div class="deck-container">
+                    <div class="deck-label">Treat Bag</div>
+                    <div class="deck" id="draw-pile">
+                        <span id="cards-remaining">85</span>
+                    </div>
+                    <div class="click-hint">Click to draw a new nut</div>
+                </div>
+                
+                <div class="discard-container">
+                    <div class="discard-label">Used Bowl</div>
+                    <div class="discard-pile" id="discard-pile"></div>
+                    <div class="click-hint">Click to take this nut</div>
+                </div>
+            </div>
+            
+            <div class="opponent-area" id="right-player-area">
+                <div class="opponent-header">
+                    <div class="player-name" id="right-player-display-name">Player 2</div>
+                    <div class="score">Nuts: <span id="right-player-score">0</span></div>
+                </div>
+                <div class="current-turn hidden" id="right-player-turn">Your Turn!</div>
+                
+                <div class="number-line-container">
+                    <div class="number-line-wrapper" id="right-player-number-line-wrapper">
+                        <div class="number-line"></div>
+                        <div class="pivot-triangle"></div>
+                        <div class="end-label left" id="right-end-label-left">-10</div>
+                        <div class="end-label right" id="right-end-label-right">+10</div>
+                    </div>
+                    <div class="net-balance" id="right-player-net-balance">Net: 0</div>
+                </div>
+                
+                <div class="hand-container" id="right-player-hand"></div>
+            </div>
+        </div>
+        
+        <!-- Game Status and Controls -->
+        <div class="game-status hidden" id="game-status">
+            <div class="status-text" id="status-message">Click Treat Bag or Used Bowl to take a nut</div>
+            <div class="controls">
+                <button class="control-btn toggle-balance-btn" id="toggle-balance-btn">Hide Balance</button>
+                <button class="control-btn swap-sides-btn" id="swap-sides-btn">Swap Sides</button>
+                <button class="control-btn new-game-btn" id="new-game-btn">New Quest</button>
+            </div>
+        </div>
+        
+        <!-- Nut Collection Area -->
+        <div class="score-area hidden" id="score-area">
+            <h3 class="score-title">Nut Collection</h3>
+            <div class="score-details">
+                <div class="score-item">
+                    <div id="score-player1-name">Player 1</div>
+                    <div class="score-value player1-score" id="player1-total-score">0</div>
+                    <div class="click-hint" id="score-hint-1">Collected nuts</div>
+                </div>
+                <div class="score-item">
+                    <div id="score-player2-name">Player 2</div>
+                    <div class="score-value player2-score" id="player2-total-score">0</div>
+                    <div class="click-hint" id="score-hint-2">Collected nuts</div>
+                </div>
+                <div class="score-item">
+                    <div>Balance Attempt</div>
+                    <div class="score-value round-score" id="current-round">1</div>
+                    <div class="click-hint">Current round</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="instructions">
+            <h3>How to Play - Integer Balance Quest</h3>
+            <p><strong>🐹 The Story:</strong> Help Nugget balance nuts on number lines! Each nut has a position (positive = right of center, negative = left of center).</p>
+            <p><strong>🎯 Goal:</strong> Arrange your nuts so your number line balances perfectly at zero!</p>
+            <p><strong>📏 Visual Clue:</strong> Each nut appears on the number line at its exact position.</p>
+            <p><strong>⚖️ On Your Turn:</strong></p>
+            <ul>
+                <li>Click the <strong>Treat Bag</strong> to draw a new nut</li>
+                <li>OR click the <strong>Used Bowl</strong> to take the top discarded nut</li>
+                <li><strong>New nuts appear below your hand</strong> until you discard one</li>
+                <li>Then select ANY nut from your hand OR the new nut to discard (double-click it!)</li>
+            </ul>
+            <p><strong>🌰 Perfect Balance:</strong> If all your nuts balance at zero after discarding, you win the round!</p>
+            <p><strong>🏆 Scoring:</strong> When you achieve perfect balance, you collect ALL unbalanced nuts from your opponent's scale!</p>
+            <p><strong>👁️ Show Balance:</strong> Click "Show Balance" to see the net balance and tilt of each number line.</p>
+        </div>
+    </div>
+    
+    <!-- Round End Message -->
+    <div class="win-message hidden" id="win-message">
+        <div class="win-content">
+            <div class="win-title" id="win-title">Perfect Balance!</div>
+            <div class="win-details" id="win-details">You collect 0 nuts!</div>
+            <button class="control-btn new-game-btn" id="next-round-btn">Next Round</button>
+        </div>
+    </div>
+    
+    <!-- Overall Winner Message -->
+    <div class="win-message hidden" id="overall-winner-message">
+        <div class="win-content">
+            <div class="win-title" id="overall-winner-title">🏆 Overall Winner! 🏆</div>
+            <div class="win-details" id="overall-winner-details">Player wins with X nuts!</div>
+            <button class="control-btn new-game-btn" id="play-again-btn">Play Again</button>
+        </div>
+    </div>
+
+    <script src="integer-balance.js"></script>
+</body>
+</html>
